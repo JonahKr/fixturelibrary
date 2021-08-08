@@ -1,5 +1,5 @@
 {
-  "name": "openfixturelibrary",
+  "name": "fixturelibrary",
   "version": "12.2.2",
   "description": "Utility library making it easy to work with the open-fixture-library.",
   "main": "dist/index.js",
