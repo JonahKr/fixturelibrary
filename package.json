@@ -1,0 +1,63 @@
+{
+  "name": "openfixturelibrary",
+  "version": "12.2.2",
+  "description": "Utility library making it easy to work with the open-fixture-library.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "ofl",
+    "dmx",
+    "ola",
+    "fixture"
+  ],
+  "author": "JonahKr",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^26.0.24",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.29.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^24.4.0",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.4",
+    "typescript": "^4.3.5"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": false,
+      "commonjs": true,
+      "es2021": true,
+      "jest/globals": true
+    },
+    "extends": [
+        "airbnb-typescript/base"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "project": "./tsconfig.json"
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "jest"
+    ],
+    "rules": {
+    }
+  },
+  "eslintIgnore": ["dist/"],
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "modulePaths": ["./src"],
+    "roots": ["./tests"]
+  }
+}
