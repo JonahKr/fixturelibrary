@@ -1,34 +1,40 @@
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "https://raw.githubusercontent.com/OpenLightingProject/open-fixture-library/master/schemas/manufacturers.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/OpenLightingProject/open-fixture-library/master/schemas/manufacturers.json",
 
-	"version": "12.2.2",
+  "version": "12.2.2",
 
-	"type": "object",
-	"properties": {
-	  "$schema": {
-		"const": "https://raw.githubusercontent.com/OpenLightingProject/open-fixture-library/master/schemas/manufacturers.json"
-	  }
-	},
-	"required": ["$schema"],
-	"propertyNames": {
-	  "$comment": "manufacturer key",
-	  "type": "string",
-	  "pattern": "^[a-z0-9\\-]+$|^\\$"
-	},
-	"additionalProperties": {
-	  "type": "object",
-	  "properties": {
-		"name": { "$ref": "definitions.json#/nonEmptyString" },
-		"comment": { "$ref": "definitions.json#/nonEmptyMultilineString" },
-		"website": { "$ref": "definitions.json#/urlString" },
-		"rdmId": {
-		  "type": "integer",
-		  "minimum": 0,
-		  "maximum": 65536
-		}
-	  },
-	  "required": ["name"],
-	  "additionalProperties": false
-	}
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "const": "https://raw.githubusercontent.com/OpenLightingProject/open-fixture-library/master/schemas/manufacturers.json"
+    }
+  },
+  "required": ["$schema"],
+  "propertyNames": {
+    "$comment": "manufacturer key",
+    "type": "string",
+    "pattern": "^[a-z0-9\\-]+$|^\\$"
+  },
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "$ref": "definitions.json#/nonEmptyString"
+      },
+      "comment": {
+        "$ref": "definitions.json#/nonEmptyMultilineString"
+      },
+      "website": {
+        "$ref": "definitions.json#/urlString"
+      },
+      "rdmId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 65536
+      }
+    },
+    "required": ["name"],
+    "additionalProperties": false
   }
+}
