@@ -6,3 +6,6 @@ dist/
 
 # Jest Coverage Reports
 coverage/
+
+# Local Fixture Library
+.fixturelibrary/
