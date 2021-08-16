@@ -1,5 +1,5 @@
 import { Channel } from './channel';
-import { WheelSlot } from './wheel-slot';
+import { GoboWheelSlot } from './wheelslot';
 
 /**
  * Definition of a DMX fixture following the OFL schema
@@ -47,7 +47,7 @@ export interface Fixture{
   wheels?: {
     [key: string]: {
       direction?: WheelDirection
-      slots: WheelSlot[]
+      slots: GoboWheelSlot[]
     }
   }
   availableChannels?: {

@@ -10,7 +10,7 @@
     "test": "jest",
     "coverage": "jest --coverage",
     "lint": "eslint .",
-    "docs": "typedoc --out docs src"
+    "docs": "typedoc --out docs src/index.ts"
   },
   "keywords": [
     "ofl",

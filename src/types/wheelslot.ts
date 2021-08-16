@@ -3,7 +3,7 @@
  * Types: Open, Closed, Color, Gobo, Prism, Iris, Frost,
  * AnimationGoboStart, AnimationGoboStop
  */
-export type WheelSlot = {
+export type GoboWheelSlot = {
   type: 'Open'
 } | {
   type: 'Closed'
