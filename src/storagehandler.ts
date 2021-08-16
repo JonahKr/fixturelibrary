@@ -1,4 +1,4 @@
-import { mkdir, outputJSON, readJSON } from 'fs-extra';
+import { ensureDir, outputJSON, readJSON } from 'fs-extra';
 
 type PathOptions = 'ofl' | 'custom' | undefined;
 
@@ -23,14 +23,14 @@ export class StorageHandler {
 
   public async createDirectory(path: string): Promise<boolean> {
     try {
-      await mkdir(`${this.storageDirectory}${`/${path}`}`);
+      await ensureDir(`${this.storageDirectory}${`/${path}`}`);
     } catch (err) {
       return false;
     }
     return true;
   }
 
-  public async createFile(name: string, directory: PathOptions, data: JSON): Promise<boolean> {
+  public async createFile(name: string, directory: PathOptions, data: {} | []): Promise<boolean> {
     let path = `${this.storageDirectory}/`;
     if (!directory) {
       path = `${path}${name}`;
@@ -46,7 +46,8 @@ export class StorageHandler {
     return true;
   }
 
-  public static async readFile(path: string): Promise<any> {
+  // eslint-disable-next-line class-methods-use-this
+  public async readFile(path: string): Promise<any> {
     try {
       return await readJSON(path);
     } catch (err) {
