@@ -18,11 +18,6 @@ describe('Testing StorageHandler', () => {
     expect(dirFlag1).toBe(true);
   });
 
-  test('reject faulty directory name', async () => {
-    const dirFlag2 = await storage.createDirectory('fau\\/ty*?dirname');
-    expect(dirFlag2).toBe(false);
-  });
-
   test('creation of file', async () => {
     const fileFlag = await storage.createFile('testfile.json', undefined, { test: 123 });
     expect(fileFlag).toBe(true);
