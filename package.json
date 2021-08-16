@@ -3,8 +3,8 @@
   "version": "2021.8.1",
   "openFixtureLibraryVersion": "12.2.2",
   "description": "Utility library making it easy to work with the open-fixture-library.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
@@ -20,6 +20,10 @@
   ],
   "author": "JonahKr",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JonahKr/fixturelibrary.git"
+  },
   "dependencies": {
     "fs-extra": "^10.0.0",
     "node-fetch": "^2.6.1"
@@ -59,7 +63,15 @@
       "jest"
     ],
     "rules": {
-      "no-console": ["error", { "allow": ["warn", "error"] }]
+      "no-console": [
+        "error",
+        {
+          "allow": [
+            "warn",
+            "error"
+          ]
+        }
+      ]
     }
   },
   "eslintIgnore": [

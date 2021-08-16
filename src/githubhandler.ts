@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { Fixture } from 'types/fixture';
+import { Fixture } from './types';
 import { openFixtureLibraryVersion } from '../package.json';
 
 interface GithubTag {

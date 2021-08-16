@@ -1,5 +1,5 @@
-import StorageHandler from 'storagehandler';
 import fsExtra from 'fs-extra';
+import { StorageHandler } from '../src';
 
 const ensureDirSpy = jest.spyOn(fsExtra, 'ensureDir');
 const outputJSONSpy = jest.spyOn(fsExtra, 'outputJSON');
