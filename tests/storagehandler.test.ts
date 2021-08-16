@@ -19,7 +19,7 @@ describe('Testing StorageHandler', () => {
   });
 
   test('reject faulty directory name', async () => {
-    const dirFlag2 = await storage.createDirectory('faulty:/dirname');
+    const dirFlag2 = await storage.createDirectory('fau\\/ty*?dirname');
     expect(dirFlag2).toBe(false);
   });
 
