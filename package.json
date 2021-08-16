@@ -58,10 +58,13 @@
       "@typescript-eslint",
       "jest"
     ],
-    "rules": {}
+    "rules": {
+      "no-console": ["error", { "allow": ["warn", "error"] }]
+    }
   },
   "eslintIgnore": [
-    "dist/"
+    "dist/",
+    "docs/"
   ],
   "jest": {
     "preset": "ts-jest",
