@@ -1,24 +1,58 @@
 import { ensureDir, outputJSON, readJSON } from 'fs-extra';
+import { FixtureIndex, Indexitem, parseFixtureKey } from './fixtureindex';
 
 type PathOptions = 'ofl' | 'custom' | undefined;
 
-export class StorageHandler {
-  storageDirectory: string;
+export class StorageHandler extends FixtureIndex {
+  public storageDirectory: string;
 
-  oflName: string;
+  public oflName: string;
 
-  customName: string;
+  public customName: string;
 
   constructor(storageDirectory = './\\.fixturelibrary', oflName: string = 'ofl', customName: string = 'custom') {
+    super();
     this.storageDirectory = storageDirectory;
     this.oflName = oflName;
     this.customName = customName;
+
+    // Try to recreate index from savefile: index.json
+    const index = readJSON(`${storageDirectory}/index.json`) as unknown as { [key:string]: Indexitem };
+    if (index !== undefined) super.setIndex(index);
+  }
+
+  public setIndexItem(key: string, data: Indexitem, override?: boolean): void {
+    const vkey = parseFixtureKey(key);
+    if (data.fixture) {
+      this.createFile(vkey, 'custom', data.fixture);
+      super.setIndexItem(vkey, { path: `custom/${vkey}.json` }, override);
+    } else {
+      super.setIndexItem(vkey, data, override);
+    }
+    this.updateIndexFile();
+  }
+
+  public getIndexItem(key: string): Indexitem | undefined {
+    const indexsearch = super.getIndexItem(key);
+    // Now we have the item which is definitely not a alias
+    if (indexsearch?.path) {
+
+    }
+  }
+
+  public setAlias(key: string, alias: string): void {
+    super.setAlias(key, alias);
+    this.updateIndexFile();
   }
 
   public async setup() {
     await this.createDirectory('');
     await this.createDirectory(this.oflName);
     await this.createDirectory(this.customName);
+  }
+
+  public async updateIndexFile(): Promise<void> {
+    await outputJSON(`${this.storageDirectory}/index.json`, super.getIndex());
   }
 
   public async createDirectory(path: string): Promise<boolean> {
