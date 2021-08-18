@@ -10,6 +10,7 @@ import * as types from './types';
  */
 export import Types = types;
 
+export { FixtureLibrary } from './fixturelibrary';
 export { FixtureIndex, IndexItem } from './fixtureindex';
 export { LocalStorageFixtureIndex } from './localstoragefixtureindex';
 
