@@ -2,8 +2,9 @@
 import { Fixture } from './types';
 
 /**
- * A IndexItem can be either a fixturedefinition, a path to a fixture definition
- * or a alias pointing to another key in the index.
+ * - **aliasOf**: key of other IndexItem - "fixtxyz"
+ * - **fixture**: {@link Fixture} definition
+ * - **path**: (LocalStorage) path to a fixture definition - "ofl/adb/alc4", "custom/fixtxyz"
  */
 export interface IndexItem {
   aliasOf?: string
@@ -11,31 +12,11 @@ export interface IndexItem {
   path?: string
 }
 
-class ItemExistsError extends Error {
+export class ItemExistanceError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ItemExistsError';
+    this.name = 'ItemExistanceError';
   }
-}
-
-class KeyInvalidError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'KeyInvalidError';
-  }
-}
-
-/**
- *
- * @param key the fixture key to be parsed
- * @returns the parsed fixture key
- * @throws {KeyInvalidError} if / is used in fixture key
- */
-export function parseFixtureKey(key: string): string {
-  const slash = key.split('/');
-  if (slash[0] === 'custom' && slash.length === 2) return slash[1];
-  if (slash.length > 1) throw new KeyInvalidError('The Symbol / cannot be used for naming a fixture!');
-  return key;
 }
 
 /**
@@ -76,7 +57,7 @@ export class FixtureIndex {
    */
   public setIndexItem(key: string, data: IndexItem, override: boolean = true): void {
     if (this.hasIndexItem(key) && !override) {
-      throw new ItemExistsError('This Item already Exists in this FixtureIndex!');
+      throw new ItemExistanceError('This Item already Exists in this FixtureIndex!');
     }
     this.index[key] = data;
   }
