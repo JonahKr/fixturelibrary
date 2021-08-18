@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RotationAngleStartEnd | fixturelibrary</title>
+	<title>IndexItem | fixturelibrary</title>
 	<meta name="description" content="Documentation for fixturelibrary">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,13 +55,10 @@
 					<a href="../modules.html">fixturelibrary</a>
 				</li>
 				<li>
-					<a href="../modules/Types.html">Types</a>
-				</li>
-				<li>
-					<a href="Types.RotationAngleStartEnd.html">RotationAngleStartEnd</a>
+					<a href="IndexItem.html">IndexItem</a>
 				</li>
 			</ul>
-			<h1>Interface RotationAngleStartEnd</h1>
+			<h1>Interface IndexItem</h1>
 		</div>
 	</div>
 </header>
@@ -71,7 +68,11 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>In degrees (deg) or percent (%)</p>
+						<ul>
+							<li><strong>aliasOf</strong>: key of other IndexItem - &quot;fixtxyz&quot;</li>
+							<li><strong>fixture</strong>: <a href="Types.Fixture.html">Fixture</a> definition</li>
+							<li><strong>path</strong>: (LocalStorage) path to a fixture definition - &quot;ofl/adb/alc4&quot;, &quot;custom/fixtxyz&quot;</li>
+						</ul>
 					</div>
 				</div>
 			</section>
@@ -79,39 +80,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">RotationAngleStartEnd</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<a href="Types.Pan.html" class="tsd-signature-type" data-tsd-kind="Interface">Pan</a>
-							</li>
-							<li>
-								<a href="Types.Tilt.html" class="tsd-signature-type" data-tsd-kind="Interface">Tilt</a>
-							</li>
-							<li>
-								<a href="Types.WheelSlotRotation.html" class="tsd-signature-type" data-tsd-kind="Interface">WheelSlotRotation</a>
-							</li>
-							<li>
-								<a href="Types.WheelRotation.html" class="tsd-signature-type" data-tsd-kind="Interface">WheelRotation</a>
-							</li>
-							<li>
-								<a href="Types.Prism.html" class="tsd-signature-type" data-tsd-kind="Interface">Prism</a>
-							</li>
-							<li>
-								<a href="Types.PrismRotation.html" class="tsd-signature-type" data-tsd-kind="Interface">PrismRotation</a>
-							</li>
-							<li>
-								<a href="Types.BladeRotation.html" class="tsd-signature-type" data-tsd-kind="Interface">BladeRotation</a>
-							</li>
-							<li>
-								<a href="Types.BladeSystemRotation.html" class="tsd-signature-type" data-tsd-kind="Interface">BladeSystemRotation</a>
-							</li>
-							<li>
-								<a href="Types.Fog.html" class="tsd-signature-type" data-tsd-kind="Interface">Fog</a>
-							</li>
-							<li>
-								<a href="Types.Rotation.html" class="tsd-signature-type" data-tsd-kind="Interface">Rotation</a>
-							</li>
-						</ul>
+						<span class="target">IndexItem</span>
 					</li>
 				</ul>
 			</section>
@@ -122,9 +91,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="Types.RotationAngleStartEnd.html#angle" class="tsd-kind-icon">angle</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="Types.RotationAngleStartEnd.html#angleEnd" class="tsd-kind-icon">angle<wbr>End</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="Types.RotationAngleStartEnd.html#angleStart" class="tsd-kind-icon">angle<wbr>Start</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="IndexItem.html#aliasOf" class="tsd-kind-icon">alias<wbr>Of</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="IndexItem.html#fixture" class="tsd-kind-icon">fixture</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="IndexItem.html#path" class="tsd-kind-icon">path</a></li>
 							</ul>
 						</section>
 					</div>
@@ -133,32 +102,32 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="angle" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> angle</h3>
-					<div class="tsd-signature tsd-kind-icon">angle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="aliasOf" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> alias<wbr>Of</h3>
+					<div class="tsd-signature tsd-kind-icon">alias<wbr>Of<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/9f1c04f/src/types/definitions.ts#L89">src/types/definitions.ts:89</a></li>
+							<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/9f1c04f/src/fixtureindex.ts#L10">src/fixtureindex.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="angleEnd" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> angle<wbr>End</h3>
-					<div class="tsd-signature tsd-kind-icon">angle<wbr>End<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="fixture" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> fixture</h3>
+					<div class="tsd-signature tsd-kind-icon">fixture<span class="tsd-signature-symbol">:</span> <a href="Types.Fixture.html" class="tsd-signature-type" data-tsd-kind="Interface">Fixture</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/9f1c04f/src/types/definitions.ts#L91">src/types/definitions.ts:91</a></li>
+							<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/9f1c04f/src/fixtureindex.ts#L11">src/fixtureindex.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="angleStart" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> angle<wbr>Start</h3>
-					<div class="tsd-signature tsd-kind-icon">angle<wbr>Start<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="path" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> path</h3>
+					<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/9f1c04f/src/types/definitions.ts#L90">src/types/definitions.ts:90</a></li>
+							<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/9f1c04f/src/fixtureindex.ts#L12">src/fixtureindex.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -170,31 +139,46 @@
 					<li class=" ">
 						<a href="../modules.html">Exports</a>
 					</li>
-					<li class="current tsd-kind-namespace">
-						<a href="../modules/Types.html">Types</a>
-					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="../classes/FixtureIndex.html" class="tsd-kind-icon">Fixture<wbr>Index</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/FixtureLibrary.html" class="tsd-kind-icon">Fixture<wbr>Library</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/LocalStorageFixtureIndex.html" class="tsd-kind-icon">Local<wbr>Storage<wbr>Fixture<wbr>Index</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="../classes/TruncatedDataError.html" class="tsd-kind-icon">Truncated<wbr>Data<wbr>Error</a>
+					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-namespace">
-						<a href="Types.RotationAngleStartEnd.html" class="tsd-kind-icon">Rotation<wbr>Angle<wbr>Start<wbr>End</a>
+					<li class="current tsd-kind-interface">
+						<a href="IndexItem.html" class="tsd-kind-icon">Index<wbr>Item</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="Types.RotationAngleStartEnd.html#angle" class="tsd-kind-icon">angle</a>
+								<a href="IndexItem.html#aliasOf" class="tsd-kind-icon">alias<wbr>Of</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="Types.RotationAngleStartEnd.html#angleEnd" class="tsd-kind-icon">angle<wbr>End</a>
+								<a href="IndexItem.html#fixture" class="tsd-kind-icon">fixture</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="Types.RotationAngleStartEnd.html#angleStart" class="tsd-kind-icon">angle<wbr>Start</a>
+								<a href="IndexItem.html#path" class="tsd-kind-icon">path</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-function">
+						<a href="../modules.html#fetchOFLFixture" class="tsd-kind-icon">fetchOFLFixture</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="../modules.html#fetchOFLFixtureDirectory" class="tsd-kind-icon">fetchOFLFixture<wbr>Directory</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
