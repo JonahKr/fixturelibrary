@@ -1,9 +1,9 @@
 import { ensureDir, outputJSON, readJSON } from 'fs-extra';
-import { FixtureIndex, Indexitem, parseFixtureKey } from './fixtureindex';
+import { FixtureIndex, IndexItem, parseFixtureKey } from './fixtureindex';
 
 type PathOptions = 'ofl' | 'custom' | undefined;
 
-export class StorageHandler extends FixtureIndex {
+export class LocalStorageFixtureIndex extends FixtureIndex {
   public storageDirectory: string;
 
   public oflName: string;
@@ -17,11 +17,11 @@ export class StorageHandler extends FixtureIndex {
     this.customName = customName;
 
     // Try to recreate index from savefile: index.json
-    const index = readJSON(`${storageDirectory}/index.json`) as unknown as { [key:string]: Indexitem };
+    const index = readJSON(`${storageDirectory}/index.json`) as unknown as { [key:string]: IndexItem };
     if (index !== undefined) super.setIndex(index);
   }
 
-  public setIndexItem(key: string, data: Indexitem, override?: boolean): void {
+  public setIndexItem(key: string, data: IndexItem, override?: boolean): void {
     const vkey = parseFixtureKey(key);
     if (data.fixture) {
       this.createFile(vkey, 'custom', data.fixture);
@@ -32,13 +32,16 @@ export class StorageHandler extends FixtureIndex {
     this.updateIndexFile();
   }
 
-  public getIndexItem(key: string): Indexitem | undefined {
+  /**
+   * @ignore
+  public getIndexItem(key: string): IndexItem | undefined {
     const indexsearch = super.getIndexItem(key);
     // Now we have the item which is definitely not a alias
     if (indexsearch?.path) {
 
     }
   }
+  */
 
   public setAlias(key: string, alias: string): void {
     super.setAlias(key, alias);
@@ -91,4 +94,4 @@ export class StorageHandler extends FixtureIndex {
   }
 }
 
-export default StorageHandler;
+export default LocalStorageFixtureIndex;

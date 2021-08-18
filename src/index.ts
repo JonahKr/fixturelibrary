@@ -3,7 +3,7 @@ import * as types from './types';
 
 export import Types = types;
 
-export { FixtureIndex, Indexitem } from './fixtureindex';
-export { StorageHandler } from './storagehandler';
+export { FixtureIndex, IndexItem, parseFixtureKey } from './fixtureindex';
+export { LocalStorageFixtureIndex } from './localstoragefixtureindex';
 
 export { TruncatedDataError, fetchOFLFixtureDirectory, fetchOFLFixture } from './githubhandler';

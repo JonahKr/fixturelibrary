@@ -1,12 +1,12 @@
 import fsExtra from 'fs-extra';
-import { StorageHandler } from '../src';
+import { LocalStorageFixtureIndex } from '../src';
 
 const ensureDirSpy = jest.spyOn(fsExtra, 'ensureDir');
 const outputJSONSpy = jest.spyOn(fsExtra, 'outputJSON');
 const readJSONSpy = jest.spyOn(fsExtra, 'readJSON');
 
 describe('Testing StorageHandler', () => {
-  const storage = new StorageHandler();
+  const storage = new LocalStorageFixtureIndex();
 
   test('wether standard directories got created', async () => {
     await storage.setup();
