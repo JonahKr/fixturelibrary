@@ -1,6 +1,7 @@
-import { outputJSON, readJSON } from 'fs-extra';
+import {
+  outputJSON, pathExistsSync, readJSON, readJSONSync,
+} from 'fs-extra';
 import { FixtureIndex, IndexItem, ItemExistanceError } from './fixtureindex';
-import { Fixture } from './types';
 
 /**
  * Options to choose a subdirectory.
@@ -45,8 +46,10 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
     this.customName = customName;
 
     // Try to recreate index from savefile: index.json
-    const index = readJSON(`${storageDirectory}/index.json`) as unknown as { [key:string]: IndexItem };
-    if (index !== undefined) super.setIndex(index);
+    if (pathExistsSync(`${storageDirectory}/index.json`)) {
+      const index = readJSONSync(`${storageDirectory}/index.json`) as unknown as { [key:string]: IndexItem };
+      if (index !== undefined) super.setIndex(index);
+    }
   }
 
   public setIndexItem(key: string, data: IndexItem, override?: boolean): void {
@@ -71,11 +74,7 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
       throw new Error('The data provided is empty!');
     }
     super.setIndexItem(key, item, override);
-    // this.updateIndexFile();
-  }
-
-  public getIndexItem(key: string): IndexItem | undefined {
-    return super.getIndexItem(key);
+    this.updateIndexFile();
   }
 
   /**
@@ -84,21 +83,21 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
    * @param key
    * @returns
    */
-  public async getFixture(key: string): Promise<Fixture | undefined> {
-    const indexsearch = super.getIndexItem(key);
+  public async getIndexItem(key: string): Promise<IndexItem | undefined> {
+    const indexsearch = await super.getIndexItem(key);
     // Now we have the item which is definitely not a alias since its recursive
     // If the returned item already contains a fixture definition
-    if (indexsearch?.fixture) return indexsearch.fixture;
+    if (indexsearch?.fixture) return indexsearch;
     // If the key references a path we look it up
     if (indexsearch?.path) {
-      return await readJSON(this.realizePath(indexsearch.path)) as unknown as Fixture;
+      return { fixture: await readJSON(this.realizePath(indexsearch.path)) };
     }
     return undefined;
   }
 
   public setAlias(key: string, alias: string): void {
     super.setAlias(key, alias);
-    // this.updateIndexFile();
+    this.updateIndexFile();
   }
 
   /**

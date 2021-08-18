@@ -80,7 +80,7 @@ export class FixtureIndex {
    * @param key fixture key
    * @returns The found IndexItem or undefined if nothing was found.
    */
-  public getIndexItem(key: string): IndexItem | undefined {
+  public async getIndexItem(key: string): Promise<IndexItem | undefined> {
     const item = this.index[key];
     if (item === undefined) return undefined;
     // If the IndexItem is a alias, we need to look for the corresponding key recursively
