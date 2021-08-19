@@ -9,3 +9,6 @@ coverage/
 
 # Local Fixture Library
 .fixturelibrary/
+
+# Documentation directory
+docs/
