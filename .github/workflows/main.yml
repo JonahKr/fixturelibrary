@@ -8,33 +8,39 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  setup:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout the repository
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Linting
         run: npm run lint
-
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       #- name: Testing
       #  run: npm run test
-
       - name: Building
         run: npm run build
 
   docs:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -57,7 +63,7 @@ jobs:
         run: npm run build
 
       - name: Create the docs directory locally in CI
-        run: npx typedoc src/index.ts
+        run: npm run docs
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
