@@ -81,7 +81,11 @@ export class FixtureIndex {
    * @returns The found IndexItem or undefined if nothing was found.
    */
   public async getIndexItem(key: string): Promise<IndexItem | undefined> {
-    const item = this.index[key];
+    let fixtkey = key;
+    if (key.startsWith('ofl/') || key.startsWith('custom/')) {
+      fixtkey = key.split('/').slice(1).join('/');
+    }
+    const item = this.index[fixtkey];
     if (item === undefined) return undefined;
     // If the IndexItem is a alias, we need to look for the corresponding key recursively
     if (item.aliasOf) return this.getIndexItem(item.aliasOf);

@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
+  setup-and-tests📡:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -30,7 +30,7 @@ jobs:
 
       - name: Linting
         run: npm run lint
-  build:
+  build⚙️:
     needs: setup
     runs-on: ubuntu-latest
     steps:
@@ -56,7 +56,7 @@ jobs:
       - name: Building
         run: npm run build
 
-  docs:
+  deploy-docs🚀:
     needs: build
     runs-on: ubuntu-latest
     steps:

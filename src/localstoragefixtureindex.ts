@@ -84,7 +84,11 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
    * @returns
    */
   public async getIndexItem(key: string): Promise<IndexItem | undefined> {
-    const indexsearch = await super.getIndexItem(key);
+    let fixtkey = key;
+    if (key.startsWith(`${this.oflName}/`) || key.startsWith(`${this.customName}/`)) {
+      fixtkey = key.split('/').slice(1).join('/');
+    }
+    const indexsearch = await super.getIndexItem(fixtkey);
     // Now we have the item which is definitely not a alias since its recursive
     // If the returned item already contains a fixture definition
     if (indexsearch?.fixture) return indexsearch;
@@ -148,6 +152,7 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
     } else {
       path = `${path}${directory}/${name}`;
     }
+    if (!path.endsWith('.json')) path += '.json';
     try {
       await outputJSON(path, data);
     } catch (err) {
