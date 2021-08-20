@@ -45,15 +45,16 @@ export class FixtureLibrary {
     return item?.fixture;
   }
 
-  public async setFixture(key: string, fixture: Fixture, alias: string = ''): Promise<Fixture> {
+  public async setFixture(key: string, fixture: Fixture): Promise<Fixture> {
     // TODO Schema approval
-    const item: IndexItem = {};
+    let item: IndexItem = {};
     if (this.localStorageFlag) {
       await (this.fixtureIndex as LocalStorageFixtureIndex).createFile(key, 'custom', fixture);
-      this.fixtureIndex?.setIndexItem(key, { path: `custom/${key}.json` }, false);
+      item = { path: `custom/${key}.json` };
     } else {
-      this.fixtureIndex?.setIndexItem(key, { fixture }, false);
+      item = { fixture };
     }
+    this.fixtureIndex?.setIndexItem(key, item, false);
     return fixture;
   }
 }
