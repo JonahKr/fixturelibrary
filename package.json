@@ -1,7 +1,7 @@
 {
   "name": "fixturelibrary",
   "version": "2021.8.1",
-  "openFixtureLibraryVersion": "12.2.2",
+  "openFixtureLibraryVersion": "12.3.0",
   "description": "Utility library making it easy to work with the open-fixture-library.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

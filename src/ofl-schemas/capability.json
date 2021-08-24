@@ -89,7 +89,8 @@
             "RampDown",
             "RampUpDown",
             "Lightning",
-            "Spikes"
+            "Spikes",
+            "Burst"
           ]
         },
         "soundControlled": {

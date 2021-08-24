@@ -101,7 +101,8 @@ export type ShutterEffect =
   'RampDown' |
   'RampUpDown' |
   'Lightning' |
-  'Spikes';
+  'Spikes' |
+  'Burst';
 
 export interface StrobeSpeed extends Capability, SpeedStartEnd {
   type: 'StrobeSpeed'
