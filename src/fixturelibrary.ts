@@ -35,8 +35,8 @@ export class FixtureLibrary {
       discriminator: true,
     });
     addFormats(this.ajv);
-    this.ajv.addKeyword(`version`);
-    this.ajv.addFormat(`color-hex`, true);
+    this.ajv.addKeyword('version');
+    this.ajv.addFormat('color-hex', true);
   }
 
   public async getFixture(key: string): Promise<Fixture | undefined> {
@@ -54,7 +54,8 @@ export class FixtureLibrary {
     return item?.fixture;
   }
 
-  public async setFixture(key: string, fixture: Fixture, oflValidation = true): Promise<Fixture|undefined> {
+  public async setFixture(key: string, fixture: Fixture, oflValidation = true):
+  Promise<Fixture | undefined> {
     if (oflValidation && !this.validate(fixture)) {
       console.error('Fixture could not be validated');
       return undefined;
@@ -66,10 +67,9 @@ export class FixtureLibrary {
 
   private validate(fixture: any): boolean {
     const valid = this.ajv.validate(schema, fixture);
-    if (!valid) console.log(this.ajv.errors);
+    if (!valid) console.error(this.ajv.errors);
     return valid;
   }
-
 }
 
 export default FixtureLibrary;

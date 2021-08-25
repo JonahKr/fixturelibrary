@@ -38,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-airbnb-typescript": "^14.0.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jest": "^24.4.0",
@@ -54,6 +55,7 @@
       "jest/globals": true
     },
     "extends": [
+      "airbnb-base",
       "airbnb-typescript/base"
     ],
     "parser": "@typescript-eslint/parser",
@@ -79,7 +81,8 @@
   },
   "eslintIgnore": [
     "dist/",
-    "docs/"
+    "docs/",
+    "scripts/"
   ],
   "jest": {
     "preset": "ts-jest",
