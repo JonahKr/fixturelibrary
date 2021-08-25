@@ -1,12 +1,5 @@
-import {
-  outputJSON, pathExistsSync, readJSON, readJSONSync,
-} from 'fs-extra';
+import { outputJSON, pathExists, readJSON } from 'fs-extra';
 import { FixtureIndex, IndexItem, ItemExistanceError } from './fixtureindex';
-
-/**
- * Options to choose a subdirectory.
- */
-type PathOptions = 'ofl' | 'custom' | undefined;
 
 /**
  * Extension of {@link FixtureIndex} with local storage.
@@ -23,52 +16,41 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
   public storageDirectory: string;
 
   /**
-   * The Directory to use for OFL files.
-   * `ofl` will be mapped to this directory automatically aswell.
-   */
-  public oflName: string;
-
-  /**
-   * Directory to store custom fixture definitions to.
-   * `custom` will be mapped to this directory automatically aswell.
-   */
-  public customName: string;
-
-  /**
    * @param storageDirectory name of the storage directory
-   * @param oflName directory name for OFL realated files
-   * @param customName directory name for custom fixtures
    */
-  constructor(storageDirectory = './\\.fixturelibrary', oflName: string = 'ofl', customName: string = 'custom') {
+  constructor(storageDirectory = './\\.fixturelibrary') {
     super();
     this.storageDirectory = storageDirectory;
-    this.oflName = oflName;
-    this.customName = customName;
 
     // Try to recreate index from savefile: index.json
-    if (pathExistsSync(`${storageDirectory}/index.json`)) {
-      const index = readJSONSync(`${storageDirectory}/index.json`) as unknown as { [key:string]: IndexItem };
-      if (index !== undefined) super.setIndex(index);
+    // if (pathExistsSync(`${storageDirectory}/index.json`)) {
+    //   const index = this.readFile('index.json') as unknown as { [key:string]: IndexItem };
+    //   if (index !== undefined) super.setIndex(index);
+    // }
+    try {
+      this.readFile('index.json').then((e) => super.setIndex(e));
+    } catch (error) {
+      if (!(error instanceof ItemExistanceError)) console.error(error);
     }
   }
 
-  public setIndexItem(key: string, data: IndexItem, override?: boolean): void {
-    // Possible Key entries: "ofl/arri/skypanel-s120c", "custom/fixturebaz", "fixtfoobar"
+  public async setIndexItem(key: string, data: IndexItem, override?: boolean): Promise<void> {
     let item: IndexItem = {};
     // Now there are three options:
-    // First it could be a alias
+    // 1. Alias
     if (data.aliasOf) {
       if (!this.hasIndexItem(data.aliasOf)) throw new ItemExistanceError('The referenced item doesn`t exist in the index!');
       item = { aliasOf: data.aliasOf };
 
-    // Secondly it could be a path definition
+    // 2. Path
     } else if (data.path) {
-      item = { path: this.standardizePath(data.path) };
+      item = { path: data.path };
 
-    // Third Option is a fixture definition
-    // It will just be kept in the index.
+    // 3. Fixture
+    // In this case a file will be created and a path pushed to the index.
     } else if (data.fixture) {
-      item = { fixture: data.fixture };
+      await this.createFile(key, data.fixture);
+      item = { path: key };
     // empty data was provided
     } else {
       throw new Error('The data provided is empty!');
@@ -84,75 +66,29 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
    * @returns
    */
   public async getIndexItem(key: string): Promise<IndexItem | undefined> {
-    let fixtkey = key;
-    if (key.startsWith(`${this.oflName}/`) || key.startsWith(`${this.customName}/`)) {
-      fixtkey = key.split('/').slice(1).join('/');
-    }
-    const indexsearch = await super.getIndexItem(fixtkey);
+    const indexsearch = await super.getIndexItem(key);
     // Now we have the item which is definitely not a alias since its recursive
     // If the returned item already contains a fixture definition
     if (indexsearch?.fixture) return indexsearch;
     // If the key references a path we look it up
     if (indexsearch?.path) {
-      return { fixture: await readJSON(this.realizePath(indexsearch.path)) };
+      return { fixture: await this.readFile(indexsearch.path) };
     }
     return undefined;
-  }
-
-  public setAlias(key: string, alias: string): void {
-    super.setAlias(key, alias);
-    this.updateIndexFile();
-  }
-
-  /**
-   * @internal
-   * Parsing any path to a standardized format.
-   * e.g. "foobar" -> "custom/foobar"
-   * @param path
-   */
-  private standardizePath(path: string): string {
-    const slash = path.split('/');
-    if (slash.length > 1) {
-      const postPrefix: string = slash.slice(1).join('/');
-      // If its ofl prefix -> ofl/
-      if (slash[0] === ('ofl' || this.oflName)) {
-        return `ofl/${postPrefix}`;
-        // if its custom prefix -> custom/
-      }
-      if (slash[0] === ('custom' || this.customName)) {
-        return `custom/${postPrefix}`;
-      }
-      // If we only have no directory defined -> custom
-    }
-    return `custom/${path}`;
-  }
-
-  /**
-   * @internal
-   * Parsing any standardized path to the real file path
-   * @param path
-   */
-  private realizePath(path: string): string {
-    const slash = path.split('/');
-    const postPrefix: string = slash.slice(1).join('/');
-    let dir = '';
-    if (slash[0] === 'ofl') dir = this.oflName;
-    if (slash[0] === 'custom') dir = this.customName;
-    return `${this.storageDirectory}/${dir}/${postPrefix}`;
   }
 
   public async updateIndexFile(): Promise<void> {
     await outputJSON(`${this.storageDirectory}/index.json`, super.getIndex());
   }
 
-  public async createFile(name: string, directory: PathOptions, data: {} | []): Promise<boolean> {
-    let path = `${this.storageDirectory}/`;
-    if (!directory) {
-      path = `${path}${name}`;
-    } else {
-      path = `${path}${directory}/${name}`;
-    }
+  private async createFile(name: string, data: {} | [], override = false): Promise<boolean> {
+    // Preparing path
+    let path = `${this.storageDirectory}/${name}`;
     if (!path.endsWith('.json')) path += '.json';
+    // Checking if file already exists
+    if (!override && await pathExists(path)) {
+      throw new ItemExistanceError(`This file at ${path} already exist!`);
+    }
     try {
       await outputJSON(path, data);
     } catch (err) {
@@ -160,6 +96,22 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
       return false;
     }
     return true;
+  }
+
+  private async readFile(filename: string): Promise<any> {
+    // Preparing path
+    let path = `${this.storageDirectory}/${filename}`;
+    if (!filename.endsWith('.json')) path += '.json';
+    // Checking if file exists
+    if (!await pathExists(path)) {
+      throw new ItemExistanceError(`${path} doesn't exist!`);
+    }
+    try {
+      return await readJSON(path);
+    } catch (err) {
+      console.error(err);
+    }
+    return undefined;
   }
 }
 

@@ -91,14 +91,4 @@ export class FixtureIndex {
     if (item.aliasOf) return this.getIndexItem(item.aliasOf);
     return item;
   }
-
-  /**
-   * Creating a alias for any key in the index. If a non existing key is targeted,
-   * querying the index will always result in `undefined`.
-   * @param key fixture key
-   * @param alias alias for the fixture key
-   */
-  public setAlias(key: string, alias: string): void {
-    this.setIndexItem(alias, { aliasOf: key });
-  }
 }
