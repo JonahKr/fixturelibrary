@@ -20,7 +20,7 @@ export class ItemExistanceError extends Error {
 }
 
 /**
- * The in memory fixture index consisting of {@linkcode IndexItem}s.
+ * The in memory fixture index consisting of {@link IndexItem}s.
  *
  * The {@link LocalStorageFixtureIndex} is the recommended tool for managing the fixture index,
  * since it has a smaller memory footprint (in most cases).

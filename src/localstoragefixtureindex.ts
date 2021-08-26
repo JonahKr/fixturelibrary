@@ -13,7 +13,7 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
   /**
    * The Directory which should be used for everything.
    */
-  public storageDirectory: string;
+  private storageDirectory: string;
 
   /**
    * @param storageDirectory name of the storage directory
