@@ -85,7 +85,8 @@ export class TruncatedDataError extends Error {
   }
 }
 
-export async function fetchOFLFixtureDirectory(): Promise<any> {
+export async function fetchOFLFixtureDirectory():
+Promise<{ path: string, sha: string }[] | undefined> {
   // At first we get the tree sha for the fixtures directory
   const latComm = await fetchLatestSupportedCommit();
   if (!latComm) return undefined;
@@ -96,7 +97,7 @@ export async function fetchOFLFixtureDirectory(): Promise<any> {
   // Before we continue we need to check if the data got truncated
   if (fixtReq.truncated) throw new TruncatedDataError('The Open Fixture Library got to big. Please resort to specific File downloading!');
 
-  const fixtures: any[] = [];
+  const fixtures: { path: string, sha: string }[] = [];
   fixtReq.tree.forEach((e) => {
     // Filtering out directories or commits from the tree
     if (e.type !== 'blob') return;
