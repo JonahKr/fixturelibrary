@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
 import { FixtureIndex, IndexItem } from './fixtureindex';
-import { fetchOFLFixture } from './githubhandler';
+import { fetchOFLFixture, fetchOFLFixtureDirectory } from './githubhandler';
 import { LocalStorageFixtureIndex } from './localstoragefixtureindex';
 import { Fixture } from './types';
 
@@ -15,8 +15,7 @@ import * as schema from './ofl-schema/ofl-fixture.json';
  */
 export class FixtureLibrary {
   /**
-   * @internal
-   * The FixtureIndex object
+   * The FixtureIndex object storing/handling storage of fixture definition
    */
   private fixtureIndex: FixtureIndex | undefined;
 
@@ -54,16 +53,21 @@ export class FixtureLibrary {
   /**
    * Get a Fixture from the Library or OFL if allowed.
    * @param key Key of the fixture
-   * @returns Fixture Definition
+   * @param override if existing entries should be overwritten
+   * @returns Fixture Definition or undefined if not found
    */
-  public async getFixture(key: string): Promise<Fixture | undefined> {
+  public async getFixture(key: string, override = false):
+  Promise<Fixture | undefined> {
     const item = await this.fixtureIndex?.getIndexItem(key);
     // If we don't find it in the index we look for it on github
-    if (!item && this.useOFLGithub) {
+    if ((override || !item) && this.useOFLGithub) {
       const gh = await fetchOFLFixture(key);
       if (!gh) return undefined;
       // If the fetch was successfull we save the fixture to the index
-      this.fixtureIndex?.setIndexItem(key, { fixture: gh }, false);
+      await this.fixtureIndex?.setIndexItem(key, { fixture: gh }, override);
+      if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
+        await this.fixtureIndex.updateIndex();
+      }
       return gh;
     }
     return item?.fixture;
@@ -74,9 +78,10 @@ export class FixtureLibrary {
    * @param key new and unique fixture key
    * @param fixture Fixture Definition
    * @param oflValidation If the fixture should be validated against the OFL Schema
+   * @param override if existing entries should be overwritten
    * @returns The passed Fixture Definition to enable method chaining
    */
-  public async setFixture(key: string, fixture: Fixture, oflValidation = true):
+  public async setFixture(key: string, fixture: Fixture, oflValidation = true, override = false):
   Promise<Fixture | undefined> {
     if (oflValidation && !this.validate(fixture)) {
       // TODO: Proper Error
@@ -84,7 +89,7 @@ export class FixtureLibrary {
       return undefined;
     }
     const item: IndexItem = { fixture };
-    this.fixtureIndex?.setIndexItem(key, item, false);
+    this.fixtureIndex?.setIndexItem(key, item, override);
     return fixture;
   }
 
@@ -97,6 +102,40 @@ export class FixtureLibrary {
     const valid = this.ajv.validate(schema, fixture);
     if (!valid) console.error(this.ajv.errors);
     return valid;
+  }
+
+  /**
+   * @internal
+   * Similar to getFixture but directly resorts to github polling
+   * @param key
+   * @returns
+   */
+  private async fetchFixture(key: string, override: boolean) {
+    const gh = await fetchOFLFixture(key);
+    if (!gh) return;
+    await this.fixtureIndex?.setIndexItem(key, { fixture: gh }, override);
+    if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
+      await this.fixtureIndex.updateIndex();
+    }
+  }
+
+  /**
+   * *ONLY* available when allowing github usage.
+   * Downloading the whole Open Fixture Library
+   * @param override
+   */
+  public async downloadOFL(override = false): Promise<void> {
+    if (!this.useOFLGithub) {
+      console.error('Using Github is disabled!');
+    } else {
+      const ofl = await fetchOFLFixtureDirectory();
+      ofl?.forEach(async (e) => {
+        await this.fetchFixture(e.path.slice(0, -5), override);
+      });
+      if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
+        await this.fixtureIndex.updateIndex();
+      }
+    }
   }
 }
 

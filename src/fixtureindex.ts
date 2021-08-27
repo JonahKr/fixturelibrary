@@ -55,7 +55,7 @@ export class FixtureIndex {
    * @param data a {@link IndexItem} object
    * @param override if a existing entry should be overwritten
    */
-  public setIndexItem(key: string, data: IndexItem, override: boolean = true): void {
+  public async setIndexItem(key: string, data: IndexItem, override: boolean = true): Promise<void> {
     if (this.hasIndexItem(key) && !override) {
       throw new ItemExistanceError('This Item already Exists in this FixtureIndex!');
     }
