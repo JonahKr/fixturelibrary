@@ -1,4 +1,7 @@
-import { outputJSON, pathExists, readJSON } from 'fs-extra';
+import {
+  outputJSON, pathExists, pathExistsSync, readJSON, readJSONSync,
+} from 'fs-extra';
+
 import { FixtureIndex, IndexItem, ItemExistanceError } from './fixtureindex';
 
 /**
@@ -11,7 +14,7 @@ import { FixtureIndex, IndexItem, ItemExistanceError } from './fixtureindex';
  */
 export class LocalStorageFixtureIndex extends FixtureIndex {
   /**
-   * The Directory which should be used for everything.
+   * The Directory name which should be used to store everything.
    */
   private storageDirectory: string;
 
@@ -22,15 +25,14 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
     super();
     this.storageDirectory = storageDirectory;
 
-    // Try to recreate index from savefile: index.json
-    // if (pathExistsSync(`${storageDirectory}/index.json`)) {
-    //   const index = this.readFile('index.json') as unknown as { [key:string]: IndexItem };
-    //   if (index !== undefined) super.setIndex(index);
-    // }
-    try {
-      this.readFile('index.json').then((e) => super.setIndex(e));
-    } catch (error) {
-      if (!(error instanceof ItemExistanceError)) console.error(error);
+    // Trying to recreate index from savefile: index.json
+    // Improvements: Async or filestreams?
+    if (pathExistsSync(`${storageDirectory}/index.json`)) {
+      try {
+        super.setIndex(readJSONSync(`${this.storageDirectory}/index.json`));
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -49,14 +51,13 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
     // 3. Fixture
     // In this case a file will be created and a path pushed to the index.
     } else if (data.fixture) {
-      await this.createFile(key, data.fixture);
-      item = { path: key };
+      await this.createFile(key, data.fixture, override);
+      item = { path: !key.endsWith('.json') ? `${key}.json` : key };
     // empty data was provided
     } else {
       throw new Error('The data provided is empty!');
     }
-    super.setIndexItem(key, item, override);
-    this.updateIndexFile();
+    await super.setIndexItem(key, item, override);
   }
 
   /**
@@ -77,8 +78,9 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
     return undefined;
   }
 
-  public async updateIndexFile(): Promise<void> {
-    await outputJSON(`${this.storageDirectory}/index.json`, super.getIndex());
+  public async updateIndex(): Promise<void> {
+    const index = super.getIndex();
+    await outputJSON(`${this.storageDirectory}/index.json`, index);
   }
 
   private async createFile(name: string, data: {} | [], override = false): Promise<boolean> {
