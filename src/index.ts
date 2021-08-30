@@ -11,7 +11,5 @@ import * as types from './types';
 export import Types = types;
 
 export { FixtureLibrary } from './fixturelibrary';
-export { FixtureIndex, IndexItem } from './fixtureindex';
-export { LocalStorageFixtureIndex } from './localstoragefixtureindex';
 
-export { TruncatedDataError, fetchOFLFixtureDirectory, fetchOFLFixture } from './githubhandler';
+export { TruncatedDataError, fetchOflFixtureDirectory, fetchOflFixture } from './githubhandler';

@@ -1,0 +1,6 @@
+.fixturelibrary/
+.github/
+coverage/
+docs/
+scripts/
+tests/

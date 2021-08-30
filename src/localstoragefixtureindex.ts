@@ -78,6 +78,9 @@ export class LocalStorageFixtureIndex extends FixtureIndex {
     return undefined;
   }
 
+  /**
+   * Storing the in memory index to file
+   */
   public async updateIndex(): Promise<void> {
     const index = super.getIndex();
     await outputJSON(`${this.storageDirectory}/index.json`, index);

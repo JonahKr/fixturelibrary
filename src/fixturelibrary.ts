@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
 import { FixtureIndex, IndexItem } from './fixtureindex';
-import { fetchOFLFixture, fetchOFLFixtureDirectory } from './githubhandler';
+import { fetchOflFixture, fetchOflFixtureDirectory, TruncatedDataError } from './githubhandler';
 import { LocalStorageFixtureIndex } from './localstoragefixtureindex';
 import { Fixture } from './types';
 
@@ -32,10 +32,10 @@ export class FixtureLibrary {
   private ajv: Ajv;
 
   /**
-   * @param useOFLGithub if Github should be used as a ressource
    * @param localStorage if local storage should be used to save files
+   * @param useOFLGithub if Github should be used as a ressource
    */
-  constructor(useOFLGithub: boolean = true, localStorage: boolean = true) {
+  constructor(localStorage: boolean = true, useOFLGithub: boolean = true) {
     this.useOFLGithub = useOFLGithub;
     this.fixtureIndex = localStorage ? new LocalStorageFixtureIndex() : new FixtureIndex();
     // Json Validation Setup
@@ -44,10 +44,8 @@ export class FixtureLibrary {
       strict: false,
       allErrors: true,
       discriminator: true,
-    });
+    }).addKeyword('version').addFormat('color-hex', true);
     addFormats(this.ajv);
-    this.ajv.addKeyword('version');
-    this.ajv.addFormat('color-hex', true);
   }
 
   /**
@@ -61,7 +59,7 @@ export class FixtureLibrary {
     const item = await this.fixtureIndex?.getIndexItem(key);
     // If we don't find it in the index we look for it on github
     if ((override || !item) && this.useOFLGithub) {
-      const gh = await fetchOFLFixture(key);
+      const gh = await fetchOflFixture(key);
       if (!gh) return undefined;
       // If the fetch was successfull we save the fixture to the index
       await this.fixtureIndex?.setIndexItem(key, { fixture: gh }, override);
@@ -84,7 +82,6 @@ export class FixtureLibrary {
   public async setFixture(key: string, fixture: Fixture, oflValidation = true, override = false):
   Promise<Fixture | undefined> {
     if (oflValidation && !this.validate(fixture)) {
-      // TODO: Proper Error
       console.error('Fixture could not be validated');
       return undefined;
     }
@@ -111,7 +108,7 @@ export class FixtureLibrary {
    * @returns
    */
   private async fetchFixture(key: string, override: boolean) {
-    const gh = await fetchOFLFixture(key);
+    const gh = await fetchOflFixture(key);
     if (!gh) return;
     await this.fixtureIndex?.setIndexItem(key, { fixture: gh }, override);
     if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
@@ -120,18 +117,24 @@ export class FixtureLibrary {
   }
 
   /**
-   * *ONLY* available when allowing github usage.
-   * Downloading the whole Open Fixture Library
+   * **ONLY** available when allowing github usage.
+   * Downloading the whole Open Fixture Library to the local storage directory.
    * @param override
    */
-  public async downloadOFL(override = false): Promise<void> {
+  public async downloadOfl(override = false): Promise<void> {
     if (!this.useOFLGithub) {
       console.error('Using Github is disabled!');
     } else {
-      const ofl = await fetchOFLFixtureDirectory();
-      ofl?.forEach(async (e) => {
-        await this.fetchFixture(e.path.slice(0, -5), override);
-      });
+      try {
+        const ofl = await fetchOflFixtureDirectory();
+        ofl?.forEach(async (e) => {
+          if (e.path === 'manufacturers.json') return;
+          await this.fetchFixture(e.path.slice(0, -5), override);
+        });
+      } catch (error) {
+        if (error instanceof TruncatedDataError) return;
+        console.error(error);
+      }
       if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
         await this.fixtureIndex.updateIndex();
       }

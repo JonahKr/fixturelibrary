@@ -85,7 +85,13 @@ export class TruncatedDataError extends Error {
   }
 }
 
-export async function fetchOFLFixtureDirectory():
+/**
+ * @internal
+ * Fetching and filtering a list of all fixtures of ofl.
+ * @returns List of all fixtures in the Open Fixture Library
+ * @throws TruncatedDataError if the list is to long
+ */
+export async function fetchOflFixtureDirectory():
 Promise<{ path: string, sha: string }[] | undefined> {
   // At first we get the tree sha for the fixtures directory
   const latComm = await fetchLatestSupportedCommit();
@@ -106,7 +112,12 @@ Promise<{ path: string, sha: string }[] | undefined> {
   return fixtures;
 }
 
-export async function fetchOFLFixture(path: string): Promise<Fixture | undefined> {
+/**
+ * Downloading a specific fixture:
+ * @param path fixture path to download
+ * @returns Fixture Definition
+ */
+export async function fetchOflFixture(path: string): Promise<Fixture | undefined> {
   let corrPath = path;
   if (!path.endsWith('.json')) {
     corrPath = `${path}.json`;
