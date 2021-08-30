@@ -70,23 +70,14 @@
 						<section class="tsd-index-section ">
 							<h3>Classes</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-class"><a href="classes/FixtureIndex.html" class="tsd-kind-icon">Fixture<wbr>Index</a></li>
 								<li class="tsd-kind-class"><a href="classes/FixtureLibrary.html" class="tsd-kind-icon">Fixture<wbr>Library</a></li>
-								<li class="tsd-kind-class"><a href="classes/LocalStorageFixtureIndex.html" class="tsd-kind-icon">Local<wbr>Storage<wbr>Fixture<wbr>Index</a></li>
 								<li class="tsd-kind-class"><a href="classes/TruncatedDataError.html" class="tsd-kind-icon">Truncated<wbr>Data<wbr>Error</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Interfaces</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface"><a href="interfaces/IndexItem.html" class="tsd-kind-icon">Index<wbr>Item</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function"><a href="modules.html#fetchOFLFixture" class="tsd-kind-icon">fetchOFLFixture</a></li>
-								<li class="tsd-kind-function"><a href="modules.html#fetchOFLFixtureDirectory" class="tsd-kind-icon">fetchOFLFixture<wbr>Directory</a></li>
+								<li class="tsd-kind-function"><a href="modules.html#fetchOflFixture" class="tsd-kind-icon">fetch<wbr>Ofl<wbr>Fixture</a></li>
 							</ul>
 						</section>
 					</div>
@@ -95,42 +86,34 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="fetchOFLFixture" class="tsd-anchor"></a>
-					<h3>fetchOFLFixture</h3>
+					<a name="fetchOflFixture" class="tsd-anchor"></a>
+					<h3>fetch<wbr>Ofl<wbr>Fixture</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">fetchOFLFixture<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/Types.Fixture.html" class="tsd-signature-type" data-tsd-kind="Interface">Fixture</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">fetch<wbr>Ofl<wbr>Fixture<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/Types.Fixture.html" class="tsd-signature-type" data-tsd-kind="Interface">Fixture</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/fca14f6/src/githubhandler.ts#L109">src/githubhandler.ts:109</a></li>
+									<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/8aa4733/src/githubhandler.ts#L120">src/githubhandler.ts:120</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Downloading a specific fixture:</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>fixture path to download</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/Types.Fixture.html" class="tsd-signature-type" data-tsd-kind="Interface">Fixture</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="fetchOFLFixtureDirectory" class="tsd-anchor"></a>
-					<h3>fetchOFLFixture<wbr>Directory</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">fetchOFLFixture<wbr>Directory<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>sha<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/JonahKr/fixturelibrary/blob/fca14f6/src/githubhandler.ts#L88">src/githubhandler.ts:88</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>sha<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>Fixture Definition</p>
 						</li>
 					</ul>
 				</section>
@@ -150,25 +133,13 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class">
-						<a href="classes/FixtureIndex.html" class="tsd-kind-icon">Fixture<wbr>Index</a>
-					</li>
-					<li class=" tsd-kind-class">
 						<a href="classes/FixtureLibrary.html" class="tsd-kind-icon">Fixture<wbr>Library</a>
-					</li>
-					<li class=" tsd-kind-class">
-						<a href="classes/LocalStorageFixtureIndex.html" class="tsd-kind-icon">Local<wbr>Storage<wbr>Fixture<wbr>Index</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/TruncatedDataError.html" class="tsd-kind-icon">Truncated<wbr>Data<wbr>Error</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/IndexItem.html" class="tsd-kind-icon">Index<wbr>Item</a>
-					</li>
 					<li class=" tsd-kind-function">
-						<a href="modules.html#fetchOFLFixture" class="tsd-kind-icon">fetchOFLFixture</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="modules.html#fetchOFLFixtureDirectory" class="tsd-kind-icon">fetchOFLFixture<wbr>Directory</a>
+						<a href="modules.html#fetchOflFixture" class="tsd-kind-icon">fetch<wbr>Ofl<wbr>Fixture</a>
 					</li>
 				</ul>
 			</nav>
@@ -185,13 +156,6 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
 			</ul>
 		</div>
 	</div>
