@@ -1,13 +1,13 @@
 {
   "name": "fixturelibrary",
-  "version": "2021.8.1",
+  "version": "1.0.0",
   "openFixtureLibraryVersion": "12.3.0",
   "description": "Utility library making it easy to work with the open-fixture-library.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "npm run lint && npm run build",
     "coverage": "jest --coverage",
     "lint": "eslint .",
     "docs": "typedoc --excludeInternal --out docs src/index.ts"
