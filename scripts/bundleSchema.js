@@ -28,4 +28,4 @@ async function bundle() {
 
   await writeJson('../src/ofl-schema/ofl-fixture.json', bundle);
 }
-dereference();
+bundle();

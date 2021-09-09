@@ -12,9 +12,36 @@ import * as schema from './ofl-schema/ofl-fixture.json';
  * The Fixture Library
  *
  * The main class for managing DMX-Fixtures.
+ * ## Example - `commonJs`
+ * ```js
+ * const fixturelib = require('fixturelibrary');
+ * const fl = new fixturelib.FixtureLibrary();
+ *
+ * async function foo(){
+ *  // Downloading the OpenFixtureLibrary
+ *  await fl.downloadOfl();
+ *  console.log(`Successfully Downloaded OFL!`);
+ *  // Fetching a Fixture from the Library
+ *  const fixture = await fl.getFixture('cameo/auro-spot-300');
+ *  console.log(`${fixture.name} has ${fixture.modes.length} Modes.`);
+ *
+ *  // This will return true since we're validating a fixture from Ofl.
+ *   console.log(fl.validate(fixture));
+ * }
+ * ```
+ *
+ * ## Example - `ESM/TS`
+ * ```ts
+ * import { FixtureLibrary } from 'fixturelibrary';
+ *
+ * const fl = new FixtureLibrary();
+ * await fl.downloadOfl();
+ * const fixture = await fl.getFixture('arri/broadcaster-2-plus');
+ * ```
  */
 export class FixtureLibrary {
   /**
+   * @internal
    * The FixtureIndex object storing/handling storage of fixture definition
    */
   private fixtureIndex: FixtureIndex | undefined;
@@ -56,7 +83,10 @@ export class FixtureLibrary {
    */
   public async getFixture(key: string, override = false):
   Promise<Fixture | undefined> {
-    const item = await this.fixtureIndex?.getIndexItem(key);
+    let item;
+    if (!override) {
+      item = await this.fixtureIndex?.getIndexItem(key);
+    }
     // If we don't find it in the index we look for it on github
     if ((override || !item) && this.useOFLGithub) {
       const gh = await fetchOflFixture(key);
@@ -102,23 +132,9 @@ export class FixtureLibrary {
   }
 
   /**
-   * @internal
-   * Similar to getFixture but directly resorts to github polling
-   * @param key
-   * @returns
-   */
-  private async fetchFixture(key: string, override: boolean) {
-    const gh = await fetchOflFixture(key);
-    if (!gh) return;
-    await this.fixtureIndex?.setIndexItem(key, { fixture: gh }, override);
-    if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
-      await this.fixtureIndex.updateIndex();
-    }
-  }
-
-  /**
    * **ONLY** available when allowing github usage.
-   * Downloading the whole Open Fixture Library to the local storage directory.
+   * Downloading the whole Open Fixture Library to the fixture index.
+   * The Fixtureindex should, after a successfull download, have an additional ~30KB in size.
    * @param override
    */
   public async downloadOfl(override = false): Promise<void> {
@@ -129,7 +145,7 @@ export class FixtureLibrary {
         const ofl = await fetchOflFixtureDirectory();
         ofl?.forEach(async (e) => {
           if (e.path === 'manufacturers.json') return;
-          await this.fetchFixture(e.path.slice(0, -5), override);
+          await this.getFixture(e.path.slice(0, -5), override);
         });
       } catch (error) {
         if (error instanceof TruncatedDataError) return;

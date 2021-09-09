@@ -12,6 +12,9 @@ export interface IndexItem {
   path?: string
 }
 
+/**
+ * When an item call is invalid due to it existing/not existing.
+ */
 export class ItemExistanceError extends Error {
   constructor(message: string) {
     super(message);

@@ -93,7 +93,7 @@ export class TruncatedDataError extends Error {
  */
 export async function fetchOflFixtureDirectory():
 Promise<{ path: string, sha: string }[] | undefined> {
-  // At first we get the tree sha for the fixtures directory
+  // At first we get the tree sha for the fixtures directory in the latest supported commit
   const latComm = await fetchLatestSupportedCommit();
   if (!latComm) return undefined;
   const dirReq = await githubRepositoryRequest(`git/trees/${latComm}`) as GithubTrees;
