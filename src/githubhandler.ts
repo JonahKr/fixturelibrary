@@ -34,22 +34,26 @@ interface GithubTrees {
   truncated: boolean
 }
 
-async function request(url: string): Promise<object | undefined> {
+async function request(url: string): Promise<object | void> {
   return fetch(url).then(async (data) => {
     if (data.ok) {
-      return data.json();
+      const jdata = await data.json();
+      if (jdata && typeof jdata === 'object') {
+        return jdata;
+      }
+      return undefined;
     }
     console.error(`${data.status} - ${data.statusText}`);
     return undefined;
   }).catch((err) => console.error(err));
 }
 
-async function githubRepositoryRequest(endpoint: string): Promise<object | any[] | undefined> {
+async function githubRepositoryRequest(endpoint: string): Promise<object | any[] | void> {
   const url = `https://api.github.com/repos/OpenLightingProject/open-fixture-library/${endpoint}`;
   return request(url);
 }
 
-async function githubRawRequest(endpoint: string): Promise<object | undefined> {
+async function githubRawRequest(endpoint: string): Promise<object | void> {
   const url = `https://raw.githubusercontent.com/OpenLightingProject/open-fixture-library/${endpoint}`;
   return request(url);
 }
