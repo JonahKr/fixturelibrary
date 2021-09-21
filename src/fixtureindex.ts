@@ -1,15 +1,15 @@
 /* eslint-disable max-classes-per-file */
+
 import { Fixture } from './types';
 
 /**
- * - **aliasOf**: key of other IndexItem - "fixtxyz"
- * - **fixture**: {@link Fixture} definition
- * - **path**: (LocalStorage) path to a fixture definition - "ofl/adb/alc4", "custom/fixtxyz"
+ * Fixture Index Item
  */
 export interface IndexItem {
   aliasOf?: string
-  fixture?: Fixture
   path?: string
+  sha?: string
+  url?: string
 }
 
 /**
@@ -25,7 +25,7 @@ export class ItemExistanceError extends Error {
 /**
  * The in memory fixture index consisting of {@link IndexItem}s.
  *
- * The {@link LocalStorageFixtureIndex} is the recommended tool for managing the fixture index,
+ * The {@link FileFixtureIndex} is the recommended tool for managing the fixture index,
  * since it has a smaller memory footprint (in most cases).
  * This class should **ONLY** be used as the main index,
  * if local storage isn't viable or if only a few fixtures need to be used.
@@ -35,6 +35,8 @@ export class FixtureIndex {
    * Internal index object.
    */
   private index: { [key:string]: IndexItem } = {};
+
+  private fixtureCache: { [key:string]: Fixture } = {};
 
   /**
    * @ignore
@@ -58,15 +60,28 @@ export class FixtureIndex {
    * @param data a {@link IndexItem} object
    * @param override if a existing entry should be overwritten
    */
-  public async setIndexItem(key: string, data: IndexItem, override: boolean = true): Promise<void> {
-    if (this.hasIndexItem(key) && !override) {
+  public setIndexItem(
+    key: string,
+    data: IndexItem,
+    override: boolean = true,
+  ): void {
+    if (!override && this.hasIndexItem(key)) {
       throw new ItemExistanceError('This Item already Exists in this FixtureIndex!');
     }
-    this.index[key] = data;
+    let item = data;
+    // If its an Alias, the referenced key has to be checked aswell
+    if (data.aliasOf) {
+      if (!this.hasIndexItem(data.aliasOf)) {
+        throw new ItemExistanceError('The referenced item doesn`t exist in the index!');
+      }
+      // Safety measure to prevent additional data being passed
+      item = { aliasOf: data.aliasOf };
+    }
+    this.index[key] = item;
   }
 
   /**
-   * Checking if a {@link IndexItem} exists in the index.
+   * Checking if an {@link IndexItem} exists in the index.
    * @param key fixture key
    * @returns if the key was found in the index
    */
@@ -79,15 +94,23 @@ export class FixtureIndex {
   }
 
   /**
-   * Fetching a index item.
+   * Fetching an index item.
    * @param key fixture key
    * @returns The found IndexItem or undefined if nothing was found.
    */
-  public async getIndexItem(key: string): Promise<IndexItem | undefined> {
+  public getIndexItem(key: string): IndexItem | undefined {
     const item = this.index[key];
     if (item === undefined) return undefined;
-    // If the IndexItem is a alias, we need to look for the corresponding key recursively
+    // If the IndexItem is an alias, we need to look for the corresponding key recursively
     if (item.aliasOf) return this.getIndexItem(item.aliasOf);
     return item;
+  }
+
+  public cacheFixture(key: string, fixture: Fixture) {
+    this.fixtureCache[key] = fixture;
+  }
+
+  public fixtureFromCache(key: string): Fixture | undefined {
+    return this.fixtureCache[key];
   }
 }

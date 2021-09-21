@@ -1,12 +1,16 @@
+/* eslint-disable import/prefer-default-export */
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
-import { FixtureIndex, IndexItem } from './fixtureindex';
-import { fetchOflFixture, fetchOflFixtureDirectory, TruncatedDataError } from './githubhandler';
-import { LocalStorageFixtureIndex } from './localstoragefixtureindex';
+import { FixtureIndex } from './fixtureindex';
+import {
+  fetchOflFixtureDirectory, getFixtureGithubBlob, request,
+} from './webhandler';
 import { Fixture } from './types';
 
 import * as schema from './ofl-schema/ofl-fixture.json';
+import { readJsonFile, storageDirectory, writeJsonFile } from './filehandler';
+import { pathExistsSync, readJSONSync } from 'fs-extra';
 
 /**
  * The Fixture Library
@@ -44,13 +48,13 @@ export class FixtureLibrary {
    * @internal
    * The FixtureIndex object storing/handling storage of fixture definition
    */
-  private fixtureIndex: FixtureIndex | undefined;
+  private fixtureIndex: FixtureIndex;
 
   /**
    * @internal
-   * Flag for if Github should be used or not
+   * Flag for if downloads from the web are allowed
    */
-  private useOFLGithub: boolean;
+  private webAccess: boolean;
 
   /**
    * @internal
@@ -59,12 +63,22 @@ export class FixtureLibrary {
   private ajv: Ajv;
 
   /**
-   * @param localStorage if local storage should be used to save files
-   * @param useOFLGithub if Github should be used as a ressource
+   * @param webAccess if Github can be used as a ressource
    */
-  constructor(localStorage: boolean = true, useOFLGithub: boolean = true) {
-    this.useOFLGithub = useOFLGithub;
-    this.fixtureIndex = localStorage ? new LocalStorageFixtureIndex() : new FixtureIndex();
+  constructor(webAccess: boolean = true) {
+    this.webAccess = webAccess;
+    this.fixtureIndex = new FixtureIndex();
+    // Loading the index file
+    // Trying to recreate index from savefile: index.json
+    // Improvements: Async or filestreams?
+    if (pathExistsSync(`${storageDirectory}/index.json`)) {
+      try {
+        this.fixtureIndex.setIndex(readJSONSync(`${storageDirectory}/index.json`));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
     // Json Validation Setup
     this.ajv = new Ajv({
       verbose: true,
@@ -76,6 +90,13 @@ export class FixtureLibrary {
   }
 
   /**
+   * Saving the Index to a file to be available after execution.
+   */
+  private async saveIndex(): Promise<void> {
+    writeJsonFile('index.json', this.fixtureIndex.getIndex(), true);
+  }
+
+  /**
    * Get a Fixture from the Library or OFL if allowed.
    * @param key Key of the fixture
    * @param override if existing entries should be overwritten
@@ -83,40 +104,52 @@ export class FixtureLibrary {
    */
   public async getFixture(key: string, override = false):
   Promise<Fixture | undefined> {
-    let item;
-    if (!override) {
-      item = await this.fixtureIndex?.getIndexItem(key);
-    }
-    // If we don't find it in the index we look for it on github
-    if ((override || !item) && this.useOFLGithub) {
-      const gh = await fetchOflFixture(key);
-      if (!gh) return undefined;
-      // If the fetch was successfull we save the fixture to the index
-      await this.fixtureIndex?.setIndexItem(key, { fixture: gh }, override);
-      if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
-        await this.fixtureIndex.updateIndex();
+    // At first trying to get cached fixture definitions
+    let fixture = this.fixtureIndex.fixtureFromCache(key);
+    if (fixture && !override) return fixture;
+    const item = await this.fixtureIndex.getIndexItem(key);
+
+    if (item?.path) {
+      fixture = await readJsonFile(item.path);
+      if (fixture) this.fixtureIndex.cacheFixture(key, fixture);
+
+    // If we find a url in the index we download the fixture
+    } else if (item?.url && this.webAccess) {
+      let file; let
+        sha;
+      // We need to filter for normal hyperlinks and github blobs
+      if (item.url.startsWith('https://api.github.com/repos')) {
+        const blob = await getFixtureGithubBlob(item.url);
+        file = blob.content;
+        sha = blob.sha;
+      } else {
+        file = await request(key) as Fixture | undefined;
       }
-      return gh;
+      if (file) {
+        fixture = await this.setFixture(key, file, sha, true, override);
+      }
     }
-    return item?.fixture;
+    return fixture;
   }
 
   /**
    * Adding a new fixture to the Library.
    * @param key new and unique fixture key
    * @param fixture Fixture Definition
-   * @param oflValidation If the fixture should be validated against the OFL Schema
+   * @param sha The version SHAsum of the fixture (Can be usefull for Updating)
+   * @param validate If the fixture should be validated against the OFL Schema
    * @param override if existing entries should be overwritten
    * @returns The passed Fixture Definition to enable method chaining
    */
-  public async setFixture(key: string, fixture: Fixture, oflValidation = true, override = false):
+  public async setFixture(key: string, fixture: Fixture, sha = '', validate = true, override = false):
   Promise<Fixture | undefined> {
-    if (oflValidation && !this.validate(fixture)) {
-      console.error('Fixture could not be validated');
-      return undefined;
-    }
-    const item: IndexItem = { fixture };
-    this.fixtureIndex?.setIndexItem(key, item, override);
+    if (this.fixtureIndex.hasIndexItem(key) && !override) return undefined;
+    if (validate && !this.validate(fixture)) return undefined;
+    // If the key is new and the definition is valid, we save it to file
+    await writeJsonFile(key, fixture, override);
+    this.fixtureIndex.setIndexItem(key, { path: key, sha });
+    this.fixtureIndex.cacheFixture(key, fixture);
+    await this.saveIndex();
     return fixture;
   }
 
@@ -132,30 +165,49 @@ export class FixtureLibrary {
   }
 
   /**
-   * **ONLY** available when allowing github usage.
+   * Insteadof {@link downloadOfl}, this only downloads the references to the OFL fixtures
+   * and none of the files.
+   */
+  public async fetchOfl(): Promise<void> {
+    if (!this.webAccess) return console.error('Web Access is disabled');
+    const ofl = await fetchOflFixtureDirectory();
+    ofl?.forEach(async (fixture) => {
+      if (fixture.path !== 'manufacturers.json') {
+        // Removing the .json from the end of the file
+        const key = fixture.path.slice(0, -5);
+        const item = this.fixtureIndex.getIndexItem(key);
+        // If the SHA of the fixture doens't match, the index gets overwritten
+        if (item?.sha !== fixture.sha) {
+          this.fixtureIndex.setIndexItem(key, { url: fixture.url, sha: fixture.sha });
+        }
+      }
+    });
+    await this.saveIndex();
+    return undefined;
+  }
+
+  /**
+   * **ONLY** available when allowing web access usage.
    * Downloading the whole Open Fixture Library to the fixture index.
    * The Fixtureindex should, after a successfull download, have an additional ~30KB in size.
    * @param override
    */
   public async downloadOfl(override = false): Promise<void> {
-    if (!this.useOFLGithub) {
-      console.error('Using Github is disabled!');
-    } else {
-      try {
-        const ofl = await fetchOflFixtureDirectory();
-        ofl?.forEach(async (e) => {
-          if (e.path === 'manufacturers.json') return;
-          await this.getFixture(e.path.slice(0, -5), override);
-        });
-      } catch (error) {
-        if (error instanceof TruncatedDataError) return;
-        console.error(error);
+    if (!this.webAccess) return console.error('Web Access is disabled');
+    const ofl = await fetchOflFixtureDirectory();
+    ofl?.forEach(async (fixture) => {
+      if (fixture.path !== 'manufacturers.json') {
+        // Removing the .json from the end of the file
+        const key = fixture.path.slice(0, -5);
+        const item = this.fixtureIndex.getIndexItem(key);
+        // If the SHA of the fixture doens't match, the index gets overwritten
+        if (item?.sha !== fixture.sha) {
+          const blob = await getFixtureGithubBlob(fixture.url);
+          this.setFixture(key, blob.content, blob.sha, false, override);
+        }
       }
-      if (this.fixtureIndex instanceof LocalStorageFixtureIndex) {
-        await this.fixtureIndex.updateIndex();
-      }
-    }
+    });
+    await this.saveIndex();
+    return undefined;
   }
 }
-
-export default FixtureLibrary;
