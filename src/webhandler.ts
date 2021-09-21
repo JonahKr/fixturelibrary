@@ -34,7 +34,7 @@ interface GithubTrees {
   truncated: boolean
 }
 
-async function request(url: string): Promise<object | void> {
+export async function request(url: string): Promise<object | void> {
   return fetch(url).then(async (data) => {
     if (data.ok) {
       const jdata = await data.json();
@@ -50,6 +50,8 @@ async function request(url: string): Promise<object | void> {
 
 async function githubRepositoryRequest(endpoint: string): Promise<object | any[] | void> {
   const url = `https://api.github.com/repos/OpenLightingProject/open-fixture-library/${endpoint}`;
+  // eslint-disable-next-line no-console
+  console.log(url);
   return request(url);
 }
 
@@ -96,22 +98,23 @@ export class TruncatedDataError extends Error {
  * @throws TruncatedDataError if the list is to long
  */
 export async function fetchOflFixtureDirectory():
-Promise<{ path: string, sha: string }[] | undefined> {
+Promise<{ path: string, sha: string, url: string }[] | undefined> {
   // At first we get the tree sha for the fixtures directory in the latest supported commit
   const latComm = await fetchLatestSupportedCommit();
   if (!latComm) return undefined;
   const dirReq = await githubRepositoryRequest(`git/trees/${latComm}`) as GithubTrees;
+  //  the Fixture Directory
   const fixturesDirSha = dirReq.tree.filter((e) => (e.path.startsWith('fixtures') && e.type === 'tree'))[0].sha;
   // Now we can continue with the sub-tree
   const fixtReq = await githubRepositoryRequest(`git/trees/${fixturesDirSha}?recursive=1`) as GithubTrees;
   // Before we continue we need to check if the data got truncated
   if (fixtReq.truncated) throw new TruncatedDataError('The Open Fixture Library got to big. Please resort to specific File downloading!');
 
-  const fixtures: { path: string, sha: string }[] = [];
+  const fixtures: { path: string, sha: string, url: string }[] = [];
   fixtReq.tree.forEach((e) => {
     // Filtering out directories or commits from the tree
     if (e.type !== 'blob') return;
-    fixtures.push({ path: e.path, sha: e.sha });
+    fixtures.push({ path: e.path, sha: e.sha, url: e.url });
   });
   return fixtures;
 }
@@ -129,4 +132,17 @@ export async function fetchOflFixture(path: string): Promise<Fixture | undefined
   const latComm = await fetchLatestSupportedCommit();
   if (!latComm) return undefined;
   return await githubRawRequest(`${latComm}/fixtures/${corrPath}`) as Fixture;
+}
+
+/**
+ * Fetching a Github blob of a Fixture definition
+ * @param url url of the blob
+ * @returns sha and parsed fixture definition
+ */
+export async function getFixtureGithubBlob(url: string):
+Promise<{ sha: string, content: Fixture }> {
+  const resp = await request(url) as { sha: string, content: string };
+  const buff = Buffer.from(resp.content, 'base64');
+  const parsed = JSON.parse(buff.toString());
+  return { sha: resp.sha, content: parsed };
 }
