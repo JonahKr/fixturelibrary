@@ -12,4 +12,4 @@ export import Types = types;
 
 export { FixtureLibrary } from './fixturelibrary';
 
-export { TruncatedDataError } from './githubhandler';
+export { TruncatedDataError } from './webhandler';
