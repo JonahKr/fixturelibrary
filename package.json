@@ -1,6 +1,6 @@
 {
   "name": "fixturelibrary",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "openFixtureLibraryVersion": "12.3.0",
   "description": "Utility library making it easy to work with the open-fixture-library.",
   "main": "dist/src/index.js",
@@ -23,6 +23,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/JonahKr/fixturelibrary.git"
+  },
+  "homepage": "https://jonahkr.github.io/fixturelibrary/index.html",
+  "bin": {
+    "syncOfl": "./index.js"
   },
   "dependencies": {
     "ajv": "^8.6.2",
