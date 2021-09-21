@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
@@ -18,13 +17,10 @@ import { readJsonFile, storageDirectory, writeJsonFile } from './filehandler';
  * The main class for managing DMX-Fixtures.
  * ## Example - `commonJs`
  * ```js
- * const fixturelib = require('fixturelibrary');
- * const fl = new fixturelib.FixtureLibrary();
+ * const { FixtureLibrary } = require('fixturelibrary');
+ * const fl = new FixtureLibrary();
  *
  * async function foo(){
- *  // Downloading the OpenFixtureLibrary
- *  await fl.downloadOfl();
- *  console.log(`Successfully Downloaded OFL!`);
  *  // Fetching a Fixture from the Library
  *  const fixture = await fl.getFixture('cameo/auro-spot-300');
  *  console.log(`${fixture.name} has ${fixture.modes.length} Modes.`);
@@ -39,7 +35,6 @@ import { readJsonFile, storageDirectory, writeJsonFile } from './filehandler';
  * import { FixtureLibrary } from 'fixturelibrary';
  *
  * const fl = new FixtureLibrary();
- * await fl.downloadOfl();
  * const fixture = await fl.getFixture('arri/broadcaster-2-plus');
  * ```
  */
@@ -63,7 +58,7 @@ export class FixtureLibrary {
   private ajv: Ajv;
 
   /**
-   * @param webAccess if Github can be used as a ressource
+   * @param webAccess if web requests are allowed
    */
   constructor(webAccess: boolean = true) {
     this.webAccess = webAccess;
@@ -98,6 +93,9 @@ export class FixtureLibrary {
 
   /**
    * Get a Fixture from the Library or OFL if allowed.
+   * This relies on reading definitions from file/web and caching.
+   * Execution time depends on the size of the definition (.6 - 4ms) and if it was cached (.01ms).
+   * In Case it needs to be downloaded, it will take alot longer. (depending on your connection)
    * @param key Key of the fixture
    * @param override if existing entries should be overwritten
    * @returns Fixture Definition or undefined if not found
@@ -120,7 +118,7 @@ export class FixtureLibrary {
         file = await request(key) as Fixture | undefined;
       // If a github Sha is stored, we can request the fixture from github
       } else if (item?.sha && this.webAccess) {
-        file = await githubRawFixtureRequest(key) as Fixture;
+        file = await githubRawFixtureRequest(`${key}.json`) as Fixture;
       }
       if (file) {
         fixture = await this.setFixture(key, file, sha, true, true);
@@ -133,13 +131,14 @@ export class FixtureLibrary {
    * Adding a new fixture to the Library.
    * @param key new and unique fixture key
    * @param fixture Fixture Definition
-   * @param sha The version SHAsum of the fixture (Can be usefull for Updating)
+   * @param sha The version SHA of the fixture (Can be usefull for Versioning)
    * @param validate If the fixture should be validated against the OFL Schema
-   * @param override if existing entries should be overwritten
+   * @param override If existing entries should be overwritten
    * @returns The passed Fixture Definition to enable method chaining
    */
   public async setFixture(key: string, fixture: Fixture, sha = '', validate = true, override = false):
   Promise<Fixture | undefined> {
+    if (!fixture) return undefined;
     if (this.fixtureIndex.hasIndexItem(key) && !override) return undefined;
     if (validate && !this.validate(fixture)) return undefined;
     // If the key is new and the definition is valid, we save it to file
@@ -162,12 +161,19 @@ export class FixtureLibrary {
   }
 
   /**
+   * This call has a long executiontime and is therefore **Not Recommended** to be used in scripts!
+   * Please use `npx syncOfl shallow` instead!
+   *
    * Insteadof {@link downloadOfl}, this only downloads the references to the OFL fixtures
    * and none of the files.
+   * @returns List of all the fixtures which got updated.
    */
-  public async fetchOfl(): Promise<void> {
+  public async fetchOfl(): Promise<string[] | void> {
     if (!this.webAccess) return console.error('Web Access is disabled');
     const ofl = await fetchOflFixtureDirectory();
+
+    const updatedFixtures: string[] = [];
+
     ofl?.forEach(async (fixture) => {
       if (fixture.path !== 'manufacturers.json') {
         // Removing the .json from the end of the file
@@ -176,36 +182,46 @@ export class FixtureLibrary {
         // If the SHA of the fixture doens't match, the index gets overwritten
         if (item?.sha !== fixture.sha) {
           this.fixtureIndex.setIndexItem(key, { sha: fixture.sha });
+          updatedFixtures.push(key);
         }
       }
     });
     await this.saveIndex();
-    return undefined;
+    return updatedFixtures;
   }
 
   /**
+   * This call has a long executiontime and is therefore **Not Recommended** to be used in scripts!
+   * Please use `npx syncOfl` instead!
+   *
    * **ONLY** available when allowing web access usage.
    * Downloading the whole Open Fixture Library to the fixture index.
    * The Fixtureindex should, after a successfull download, have an additional ~30KB in size.
+   * @returns List of all the fixtures which got updated.
    */
-  public async downloadOfl(): Promise<void> {
+  public async downloadOfl(): Promise<string[] | void> {
     if (!this.webAccess) return console.error('Web Access is disabled');
     const ofl = await fetchOflFixtureDirectory();
-    if (!ofl) return undefined;
-    ofl.forEach(async (fixture) => {
+
+    const updatedFixtures: string[] = [];
+
+    ofl?.forEach(async (fixture) => {
       if (fixture.path !== 'manufacturers.json') {
         // Removing the .json from the end of the file
         const key = fixture.path.slice(0, -5);
         const item = this.fixtureIndex.getIndexItem(key);
         // If the SHA of the fixture doens't match, the index gets overwritten
         if ((item?.path && item?.sha !== fixture.sha) || !item?.path) {
+          updatedFixtures.push(key);
           // eslint-disable-next-line no-await-in-loop
-          const file = await githubRawFixtureRequest(key) as Fixture;
-          this.setFixture(key, file, fixture.sha, false, true);
+          const file = await githubRawFixtureRequest(`${key}.json`) as Fixture;
+          await this.setFixture(key, file, fixture.sha, false, true);
         }
       }
     });
     await this.saveIndex();
-    return undefined;
+    return updatedFixtures;
   }
 }
+
+export default FixtureLibrary;
