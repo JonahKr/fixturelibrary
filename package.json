@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run lint && npm run build",
-    "lint": "eslint .",
+    "lint": "eslint . -c ./package.json",
     "docs": "typedoc --excludeInternal --out docs src/index.ts"
   },
   "keywords": [
@@ -79,7 +79,8 @@
   "eslintIgnore": [
     "dist/",
     "docs/",
-    "scripts/"
+    "scripts/",
+    "bin/"
   ],
   "jest": {
     "preset": "ts-jest",
