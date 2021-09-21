@@ -50,13 +50,6 @@ export async function request(url: string): Promise<object | void> {
 
 async function githubRepositoryRequest(endpoint: string): Promise<object | any[] | void> {
   const url = `https://api.github.com/repos/OpenLightingProject/open-fixture-library/${endpoint}`;
-  // eslint-disable-next-line no-console
-  console.log(url);
-  return request(url);
-}
-
-async function githubRawRequest(endpoint: string): Promise<object | void> {
-  const url = `https://raw.githubusercontent.com/OpenLightingProject/open-fixture-library/${endpoint}`;
   return request(url);
 }
 
@@ -82,6 +75,11 @@ export async function fetchLatestSupportedCommit(forceUpdate = false): Promise<s
     latestCommit = tagReq[0].commit.sha;
   }
   return latestCommit;
+}
+
+export async function githubRawFixtureRequest(path: string): Promise<object | void> {
+  const url = `https://raw.githubusercontent.com/OpenLightingProject/open-fixture-library/${await fetchLatestSupportedCommit()}/fixtures/${path}`;
+  return request(url);
 }
 
 export class TruncatedDataError extends Error {
@@ -120,28 +118,13 @@ Promise<{ path: string, sha: string, url: string }[] | undefined> {
 }
 
 /**
- * Downloading a specific fixture:
- * @param path fixture path to download
- * @returns Fixture Definition
- */
-export async function fetchOflFixture(path: string): Promise<Fixture | undefined> {
-  let corrPath = path;
-  if (!path.endsWith('.json')) {
-    corrPath = `${path}.json`;
-  }
-  const latComm = await fetchLatestSupportedCommit();
-  if (!latComm) return undefined;
-  return await githubRawRequest(`${latComm}/fixtures/${corrPath}`) as Fixture;
-}
-
-/**
  * Fetching a Github blob of a Fixture definition
- * @param url url of the blob
+ * @param sha sha of the blob
  * @returns sha and parsed fixture definition
  */
-export async function getFixtureGithubBlob(url: string):
+export async function getFixtureGithubBlob(sha: string):
 Promise<{ sha: string, content: Fixture }> {
-  const resp = await request(url) as { sha: string, content: string };
+  const resp = await githubRepositoryRequest(`git/blobs/${sha}`) as { sha: string, content: string };
   const buff = Buffer.from(resp.content, 'base64');
   const parsed = JSON.parse(buff.toString());
   return { sha: resp.sha, content: parsed };

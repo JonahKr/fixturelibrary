@@ -2,15 +2,15 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
+import { pathExistsSync, readJSONSync } from 'fs-extra';
 import { FixtureIndex } from './fixtureindex';
 import {
-  fetchOflFixtureDirectory, getFixtureGithubBlob, request,
+  fetchOflFixtureDirectory, githubRawFixtureRequest, request,
 } from './webhandler';
 import { Fixture } from './types';
 
 import * as schema from './ofl-schema/ofl-fixture.json';
 import { readJsonFile, storageDirectory, writeJsonFile } from './filehandler';
-import { pathExistsSync, readJSONSync } from 'fs-extra';
 
 /**
  * The Fixture Library
@@ -102,31 +102,28 @@ export class FixtureLibrary {
    * @param override if existing entries should be overwritten
    * @returns Fixture Definition or undefined if not found
    */
-  public async getFixture(key: string, override = false):
+  public async getFixture(key: string):
   Promise<Fixture | undefined> {
     // At first trying to get cached fixture definitions
     let fixture = this.fixtureIndex.fixtureFromCache(key);
-    if (fixture && !override) return fixture;
+    if (fixture) return fixture;
     const item = await this.fixtureIndex.getIndexItem(key);
-
     if (item?.path) {
       fixture = await readJsonFile(item.path);
       if (fixture) this.fixtureIndex.cacheFixture(key, fixture);
 
     // If we find a url in the index we download the fixture
-    } else if (item?.url && this.webAccess) {
-      let file; let
-        sha;
-      // We need to filter for normal hyperlinks and github blobs
-      if (item.url.startsWith('https://api.github.com/repos')) {
-        const blob = await getFixtureGithubBlob(item.url);
-        file = blob.content;
-        sha = blob.sha;
-      } else {
+    } else if (this.webAccess) {
+      let file;
+      const sha = item?.sha;
+      if (item?.url) {
         file = await request(key) as Fixture | undefined;
+      // If a github Sha is stored, we can request the fixture from github
+      } else if (item?.sha && this.webAccess) {
+        file = await githubRawFixtureRequest(key) as Fixture;
       }
       if (file) {
-        fixture = await this.setFixture(key, file, sha, true, override);
+        fixture = await this.setFixture(key, file, sha, true, true);
       }
     }
     return fixture;
@@ -178,7 +175,7 @@ export class FixtureLibrary {
         const item = this.fixtureIndex.getIndexItem(key);
         // If the SHA of the fixture doens't match, the index gets overwritten
         if (item?.sha !== fixture.sha) {
-          this.fixtureIndex.setIndexItem(key, { url: fixture.url, sha: fixture.sha });
+          this.fixtureIndex.setIndexItem(key, { sha: fixture.sha });
         }
       }
     });
@@ -190,20 +187,21 @@ export class FixtureLibrary {
    * **ONLY** available when allowing web access usage.
    * Downloading the whole Open Fixture Library to the fixture index.
    * The Fixtureindex should, after a successfull download, have an additional ~30KB in size.
-   * @param override
    */
-  public async downloadOfl(override = false): Promise<void> {
+  public async downloadOfl(): Promise<void> {
     if (!this.webAccess) return console.error('Web Access is disabled');
     const ofl = await fetchOflFixtureDirectory();
-    ofl?.forEach(async (fixture) => {
+    if (!ofl) return undefined;
+    ofl.forEach(async (fixture) => {
       if (fixture.path !== 'manufacturers.json') {
         // Removing the .json from the end of the file
         const key = fixture.path.slice(0, -5);
         const item = this.fixtureIndex.getIndexItem(key);
         // If the SHA of the fixture doens't match, the index gets overwritten
-        if (item?.sha !== fixture.sha) {
-          const blob = await getFixtureGithubBlob(fixture.url);
-          this.setFixture(key, blob.content, blob.sha, false, override);
+        if ((item?.path && item?.sha !== fixture.sha) || !item?.path) {
+          // eslint-disable-next-line no-await-in-loop
+          const file = await githubRawFixtureRequest(key) as Fixture;
+          this.setFixture(key, file, fixture.sha, false, true);
         }
       }
     });
