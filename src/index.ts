@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as types from './types';
 
@@ -11,5 +12,3 @@ import * as types from './types';
 export import Types = types;
 
 export { FixtureLibrary } from './fixturelibrary';
-
-export { TruncatedDataError } from './webhandler';
