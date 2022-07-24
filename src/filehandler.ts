@@ -4,7 +4,7 @@ import {
 
 import { ItemExistanceError } from './fixtureindex';
 
-export const storageDirectory = './\\.fixturelibrary';
+export const storageDirectory = './.fixturelibrary';
 
 export async function readJsonFile(filename: string): Promise<any> {
   // Preparing path
