@@ -1,3 +1,5 @@
+# !! Deprecated !! This was just a hacky way to work with the open-fixture-library 
+
 # FixtureLibrary JS / TS
 
 The JS/TS library for working with the [open-fixture-library](https://github.com/OpenLightingProject/open-fixture-library).
